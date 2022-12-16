@@ -90,6 +90,7 @@ void afficherheader(BFILE *file){
     }
     printf("0x%x\n",T[55]);
     printf("Début des en-têtes de programme: \t\t\t");
+    printf("")
 }
 
 
