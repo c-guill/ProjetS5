@@ -1,7 +1,3 @@
-CC=clang
-CFLAGS=-Wall -Wall
-
-
 test: getELFHeader.o bfile.o 
 	$(CC) $^ -o $@ -lm
 
