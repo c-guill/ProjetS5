@@ -151,5 +151,7 @@ int main(int argc, char **argv){
     BFILE *file = bstart(f,"r");
     afficherheader(file);
     printf("\n");
+    bstop(file);
+    fclose(f);
     return 0;
 }
