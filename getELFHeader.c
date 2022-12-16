@@ -81,7 +81,7 @@ void afficherheader(BFILE *file){
     if(T[14] == 0 && T[15] == 0){
         printf("UNIX - System V\n");
     }else{
-        printf("NON gérer par notre programme\n");
+        printf("NON géré par notre programme\n");
 
     }
     printf("  Version ABI:\t\t\t ");
