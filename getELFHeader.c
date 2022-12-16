@@ -3,9 +3,21 @@
 #include "bfile.h"
 #include <stdlib.h>
 
-// clang getELFHeader.c -o test -lm
+//progm fihcier.txt dest.o
 
-void toHex(int T[], int *size){
+// clang getELFHeader.c -o test -lm
+//start et end inclus
+int hextoDec(int T[], int start, int end){
+    int j = 0;
+    int r = 0;
+    for (int i = end; i>=start ;i--){
+        r += T[i] * (int) pow(16,j);
+        j++;
+    }
+    return r;
+}
+
+void bintoHex(int T[], int *size){
     for (int i = 0; i < *size/4; ++i) {
         int dec = 0;
         int y = 0;
@@ -24,7 +36,7 @@ void readData(BFILE *file, int T[], int *size){
     for (int i = 0; i < *size; ++i) {
         T[i] = bitread(file);
     }
-    toHex(T,size);
+    bintoHex(T,size);
 }
 
 void afficherheader(BFILE *file){
@@ -32,6 +44,11 @@ void afficherheader(BFILE *file){
     int T[size];
     int result = 0;
     readData(file, T, &size);
+
+    if(hextoDec(T,0,7)!=2135247942){
+        printf("ERREUR: N'est pas un fichier ELF – a les mauvais octets magiques au départ\n");
+        exit(1);
+    }
 
     printf("En-tête ELF:\n");
     printf("  Magique:  ");
@@ -60,8 +77,14 @@ void afficherheader(BFILE *file){
     }else{
         printf("0 (invalid)\n");
     }
-    printf("  OS/ABI:\t\t\t A FAIRE\n");
-    printf("  Version ABI:\t\t\t A FAIRE\n");
+    printf("  OS/ABI:\t\t\t");
+    if(T[14] == 0 && T[15] == 0){
+        printf("UNIX - System V\n");
+    }else{
+        printf("NON gérer par notre programme\n");
+
+    }
+    printf("  Version ABI:\t\t\t ");
     printf("  Type:\t\t\t ");
     if(T[35]==1){
         printf("REL (Fichier de réadressage)\n");
@@ -74,23 +97,43 @@ void afficherheader(BFILE *file){
     } else{
         printf("NON gérer par notre programme\n");
     }
-    printf("  Version:\t\t\t ");
+    printf("  Version:\t\t\t 0x");
     for (int i = 40; i < 47; ++i) {
-        if(T[i]!=0){
-            printf("0x%x",T[i]);
+        if(T[i]!=0 || result > 0){
+            result++;
+            printf("%x",T[i]);
         }
     }
-    printf("0x%x\n",T[47]);
+    printf("%x\n",T[47]);
 
     printf("  Adresse du point d'entrée: \t");
+    result =0;
     for (int i = 48; i < 55; ++i) {
-        if(T[i]!=0){
+        if(T[i]!=0 || result > 0){
+            result++;
             printf("0x%x",T[i]);
         }
     }
     printf("0x%x\n",T[55]);
-    printf("Début des en-têtes de programme: \t\t\t");
-    printf("")
+    printf("Début des en-têtes de programme: \t\t\t%d (octets dans le fichier)\n",hextoDec(T,56,63));
+    printf("Début des en-têtes de section: \t\t\t%d (octets dans le fichier)\n", hextoDec(T,64,71));
+    printf("Fanions: \t\t\t");
+    if(hextoDec(T,72,79)==83886080){
+        printf("0x5000000, Version5 EABI\n");
+    }else{
+        printf("NON gérer par notre programme\n");
+    }
+    printf("Taille de cet en-tête: \t\t\t");
+    if(T[9]==1){
+        printf("52 (octets)\n");
+    }else{
+        printf("64 (octets)\n");
+    }
+    printf("Taille de l'en-tête du programme: \t\t\t%d (octets)\n",hextoDec(T,84,87));
+    printf("Nombre d'en-tête du programme: \t\t\t%d\n",hextoDec(T,88,91));
+    printf("Taille des en-têtes de section: \t\t\t%d (octets)\n",hextoDec(T,92,95));
+    printf("Taille d'en-têtes de section: \t\t\t%d\n",hextoDec(T,96,99));
+    printf("Table d'indexes des chaînes d'en-tête de section: \t\t\t%d\n",hextoDec(T,100,103));
 }
 
 
