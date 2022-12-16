@@ -89,13 +89,13 @@ void afficherheader(BFILE *file){
     if(T[35]==1){
         printf("REL (Fichier de réadressage)\n");
     } else{
-        printf("NON gérer par notre programme\n");
+        printf("NON géré par notre programme\n");
     }
     printf("  Machine:\t\t\t ");
     if(T[38]==2 && T[39] == 8){
         printf("ARM\n");
     } else{
-        printf("NON gérer par notre programme\n");
+        printf("NON géré par notre programme\n");
     }
     printf("  Version:\t\t\t 0x");
     for (int i = 40; i < 47; ++i) {
@@ -121,7 +121,7 @@ void afficherheader(BFILE *file){
     if(hextoDec(T,72,79)==83886080){
         printf("0x5000000, Version5 EABI\n");
     }else{
-        printf("NON gérer par notre programme\n");
+        printf("NON géré par notre programme\n");
     }
     printf("Taille de cet en-tête: \t\t\t");
     if(T[9]==1){
