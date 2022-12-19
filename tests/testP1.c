@@ -65,7 +65,7 @@ int main(int argc, char **argv){
     BFILE *dest = bstart(f2,"w");
     char c=0;
     int T[4];
-    while (c!=83){
+    while (!feof(source)){
         fscanf(source,"%c",&c);
         if(c >= 48 && c <58 || c >= 97 && c <103){
             Dectobin(T,HextoDec(c));
