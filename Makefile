@@ -1,3 +1,6 @@
+CC=clang 
+CFLAGS= -g -Wall -Werror
+
 test: getELFHeader.o bfile.o 
 	$(CC) $^ -o $@ -lm
 
