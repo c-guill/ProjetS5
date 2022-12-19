@@ -8,4 +8,4 @@ getELFHeader.o: bfile.h
 bfile.o: bfile.h
 
 clean:
-	rm -f *.o essai_pile
+	rm -f *.o test
