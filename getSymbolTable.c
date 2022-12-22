@@ -160,6 +160,28 @@ uint16_t readHalf(BFILE *file)
 }
 
 //
+// Lire 8 bits du fichier et renvoyer la valeur lue
+//
+uint8_t readByte(BFILE *file)
+{
+	uint8_t val;
+	int T[8];
+	int i, y;
+
+	readData(file, T, 8);
+	val = 0;
+	y = 0;
+
+	for (i = 1; i >= 0; i--)
+	{
+		val += T[i] * pow(16, y);
+		y++;
+	}
+
+	return val;
+}
+
+//
 // Afficher la table des symboles du fichier dans la console
 //
 // TODO :
@@ -168,21 +190,21 @@ uint16_t readHalf(BFILE *file)
 //
 void afficherSymbolTable(void)
 {
-	Elf32_Word e_shtype, sh_size;
-	Elf32_Off e_shoff, sh_offset;
-	Elf32_Half e_shentsize, e_shnum;
+	Elf32_Word sh_name, sh_type, sh_size;
+	Elf32_Off e_shoff, shsym_offset, shstr_offset;
+	Elf32_Half e_shentsize, e_shnum, e_shstrndx;
+	char c;
 	int i;
 
 // recuperer infos dans le ELF header
 	
 	skipData(bf, 256);
 	e_shoff = readWord(bf);
-	printf("offset tableau en-tete section : %d\n", e_shoff);
+	
 	skipData(bf, 80);
 	e_shentsize = readHalf(bf);
-	printf("taille en-tete section : %d\n", e_shentsize);
 	e_shnum = readHalf(bf);
-	printf("nombre d'en-tetes section : %d\n", e_shnum);
+	e_shstrndx = readHalf(bf);
 
 // se deplacer vers le debut du tableau de section headers
 
@@ -191,7 +213,7 @@ void afficherSymbolTable(void)
 
 	skipData(bf, e_shoff * 8);
 
-// parcourir les section headers a la recherche de la table des symboles
+// parcourir les section headers
 
 	if (e_shnum == 0)
 	{
@@ -199,12 +221,11 @@ void afficherSymbolTable(void)
 		return;
 	}
 
-	skipData(bf, 32);
-	e_shtype = readWord(bf);
-	printf("type section : %d\n", e_shtype);
+	sh_name = readWord(bf);
+	sh_type = readWord(bf);
 
 	i = 0;
-	while (e_shtype != SHT_SYMTAB)
+	while (sh_type != SHT_SYMTAB)
 	{
 		i++;
 
@@ -214,25 +235,55 @@ void afficherSymbolTable(void)
 			return;
 		}
 
-		skipData(bf, e_shentsize * 8 - 32);
-		e_shtype = readWord(bf);
-		printf("type section : %d\n", e_shtype);
+		skipData(bf, e_shentsize * 8 - 64);
+		sh_name = readWord(bf);
+		sh_type = readWord(bf);
+	}
+	
+	skipData(bf, 64);
+	shsym_offset = readWord(bf);
+	sh_size = readWord(bf);
+
+// se deplacer vers l'indice du string table correspondant au nom de la table des symboles
+
+	closeBinFile();
+	openBinFile(fname, fmode);
+
+	skipData(bf, e_shoff * 8);
+
+	for (i = 0; i < e_shstrndx; i++)
+	{
+		skipData(bf, e_shentsize * 8);
 	}
 
-// recuperer sh_offset dans le section header
+	skipData(bf, 128);
+	shstr_offset = readWord(bf);
 
-	skipData(bf, 64);
-	sh_offset = readWord(bf);
-	printf("offset table des symboles : 0x%x\n", sh_offset);
-	sh_size = readWord(bf);
-	printf("taille table des symboles : 0x%x\n", sh_size);
+	closeBinFile();
+	openBinFile(fname, fmode);
 
-// lire la table des symboles de taille sh_size
+	skipData(bf, (shstr_offset + sh_name) * 8);
+
+// afficher le nom de la section table des symboles
+
+	printf("\nLa table de symboles « ");
+
+	c = readByte(bf);
+	while (c)
+	{
+		printf("%c", c);
+		c = readByte(bf);
+	}
+
+	printf(" » contient 18 entrées :\n");
+
+// se deplacer vers le debut de la table des symboles et la lire
 
 	closeBinFile();
 	openBinFile(fname, fmode);
 	
-	skipData(bf, sh_offset * 8);
+	skipData(bf, shsym_offset * 8);
+	printf("0x%x\n", nbits / 8);
     
 	return;
 }
