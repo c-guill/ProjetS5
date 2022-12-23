@@ -17,16 +17,16 @@ int nbits; // nombre de bits lus dans le fichier
 //
 // Ouvrir un fichier binaire en acces bit a bit
 //
-void openBinFile(char *name, char *mode)
+void openBinFile(void)
 {
-	f = fopen(name, mode);
+	f = fopen(fname, fmode);
 	if (!f)
 	{
         printf("ERREUR: le fichier n'a pas pu être ouvert\n");
         exit(1);
     }
 
-	bf = bstart(f, mode);
+	bf = bstart(f, fmode);
 	if (!bf)
 	{
 		printf("ERREUR: impossible d'ouvrir le fichier en acces bit a bit\n");
@@ -209,7 +209,7 @@ void afficherSymbolTable(void)
 // se deplacer vers le debut du tableau de section headers
 
 	closeBinFile();
-	openBinFile(fname, fmode);
+	openBinFile();
 
 	skipData(bf, e_shoff * 8);
 
@@ -247,7 +247,7 @@ void afficherSymbolTable(void)
 // se deplacer vers l'indice du string table correspondant au nom de la table des symboles
 
 	closeBinFile();
-	openBinFile(fname, fmode);
+	openBinFile();
 
 	skipData(bf, e_shoff * 8);
 
@@ -260,7 +260,7 @@ void afficherSymbolTable(void)
 	shstr_offset = readWord(bf);
 
 	closeBinFile();
-	openBinFile(fname, fmode);
+	openBinFile();
 
 	skipData(bf, (shstr_offset + sh_name) * 8);
 
@@ -280,10 +280,10 @@ void afficherSymbolTable(void)
 // se deplacer vers le debut de la table des symboles et la lire
 
 	closeBinFile();
-	openBinFile(fname, fmode);
+	openBinFile();
 	
 	skipData(bf, shsym_offset * 8);
-	printf("0x%x\n", nbits / 8);
+	
     
 	return;
 }
@@ -299,7 +299,7 @@ int main(int argc, char **argv) {
 	strcpy(fname, argv[1]);
 	strcpy(fmode, "r");
 
-    openBinFile(fname, fmode);
+    openBinFile();
     afficherSymbolTable();
     closeBinFile();
 
