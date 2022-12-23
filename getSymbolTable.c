@@ -190,9 +190,10 @@ uint8_t readByte(void)
 //
 void afficherSymbolTable(void)
 {
-	Elf32_Word sh_name, sh_type, sh_size, sh_entsize;
-	Elf32_Off e_shoff, shsym_offset, shstr_offset;
+	Elf32_Word symtab_name, symtab_type, symtab_size, symtab_link, symtab_entsize;
+	Elf32_Off e_shoff, symtab_offset, shstrtab_offset, strtab_offset;
 	Elf32_Half e_shentsize, e_shnum, e_shstrndx;
+	Elf32_Sym sym;
 	char c;
 	int i;
 
@@ -213,7 +214,7 @@ void afficherSymbolTable(void)
 
 	skipData(e_shoff * 8);
 
-// parcourir les section headers
+// parcourir les section headers a la recherche de la table des symboles
 
 	if (e_shnum == 0)
 	{
@@ -221,11 +222,11 @@ void afficherSymbolTable(void)
 		return;
 	}
 
-	sh_name = readWord();
-	sh_type = readWord();
+	symtab_name = readWord();
+	symtab_type = readWord();
 
 	i = 0;
-	while (sh_type != SHT_SYMTAB)
+	while (symtab_type != SHT_SYMTAB)
 	{
 		i++;
 
@@ -236,17 +237,33 @@ void afficherSymbolTable(void)
 		}
 
 		skipData(e_shentsize * 8 - 64);
-		sh_name = readWord();
-		sh_type = readWord();
+		symtab_name = readWord();
+		symtab_type = readWord();
 	}
 	
 	skipData(64);
-	shsym_offset = readWord();
-	sh_size = readWord();
-	skipData(96);
-	sh_entsize = readWord();
+	symtab_offset = readWord();
+	symtab_size = readWord();
+	symtab_link = readWord();
+	skipData(64);
+	symtab_entsize = readWord();
 
-// se deplacer vers l'indice du string table correspondant au nom de la table des symboles
+// recuperer l'offset de la string table contenant le nom des symboles
+
+	closeBinFile();
+	openBinFile();
+
+	skipData(e_shoff * 8);
+
+	for (i = 0; i < symtab_link; i++)
+	{
+		skipData(e_shentsize * 8);
+	}
+
+	skipData(128);
+	strtab_offset = readWord();
+
+// se deplacer vers l'indice du section header string table correspondant au nom de la table des symboles
 
 	closeBinFile();
 	openBinFile();
@@ -259,12 +276,12 @@ void afficherSymbolTable(void)
 	}
 
 	skipData(128);
-	shstr_offset = readWord();
+	shstrtab_offset = readWord();
 
 	closeBinFile();
 	openBinFile();
 
-	skipData((shstr_offset + sh_name) * 8);
+	skipData((shstrtab_offset + symtab_name) * 8);
 
 // afficher le nom de la section table des symboles
 
@@ -277,15 +294,156 @@ void afficherSymbolTable(void)
 		c = readByte();
 	}
 
-	printf(" » contient ?? entrées :\n");
+	printf(" » contient %d entrées :\n", symtab_size / symtab_entsize);
 
 // se deplacer vers le debut de la table des symboles et la lire
 
 	closeBinFile();
 	openBinFile();
+
+	printf("   Num: Valeur Tail Type Lien Vis Ndx Nom\n");
 	
-	skipData(shsym_offset * 8);
+	skipData(symtab_offset * 8);
 	
+	for (i = 0; i < symtab_size / symtab_entsize; i++)
+	{
+		sym.st_name = readWord();
+		sym.st_value = readWord();
+		sym.st_size = readWord();
+		sym.st_info = readByte();
+		sym.st_other = readByte();
+		sym.st_shndx = readHalf();
+
+		printf("     %d: %x %d ", i, sym.st_value, sym.st_size);
+
+		switch (ELF32_ST_TYPE(sym.st_info))
+		{
+			case STT_NOTYPE:
+				printf("NOTYPE ");
+				break;
+			case STT_OBJECT:
+				printf("OBJECT ");
+				break;
+			case STT_FUNC:
+				printf("FUNC ");
+				break;
+			case STT_SECTION:
+				printf("SECTION ");
+				break;
+			case STT_FILE:
+				printf("FILE ");
+				break;
+			case STT_COMMON:
+				printf("COMMON ");
+				break;
+			case STT_TLS:
+				printf("TLS ");
+				break;
+			case STT_NUM:
+				printf("NUM ");
+				break;
+			case STT_LOOS:
+				printf("LOOS ");
+				break;
+			case STT_HIOS:
+				printf("HIOS ");
+				break;
+			case STT_LOPROC:
+				printf("LOPROC ");
+				break;
+			case STT_HIPROC:
+				printf("HIPROC ");
+				break;
+			default:
+				printf("ERREUR: type de symbole inconnu ");
+				break;
+		}
+
+		switch (ELF32_ST_BIND(sym.st_info))
+		{
+			case STB_LOCAL:
+				printf("LOCAL ");
+				break;
+			case STB_GLOBAL:
+				printf("GLOBAL ");
+				break;
+			case STB_WEAK:
+				printf("WEAK ");
+				break;
+			case STB_NUM:
+				printf("NUM ");
+				break;
+			case STB_LOOS:
+				printf("LOOS ");
+				break;
+			case STB_HIOS:
+				printf("HIOS ");
+				break;
+			case STB_LOPROC:
+				printf("LOPROC ");
+				break;
+			case STB_HIPROC:
+				printf("HIPROC ");
+				break;
+			default:
+				printf("ERREUR: bind du symbole inconnu ");
+				break;
+		}
+
+		switch (ELF32_ST_VISIBILITY(sym.st_other))
+		{
+			case STV_DEFAULT:
+				printf("DEFAULT ");
+				break;
+			case STV_INTERNAL:
+				printf("INTERNAL ");
+				break;
+			case STV_HIDDEN:
+				printf("HIDDEN ");
+				break;
+			case STV_PROTECTED:
+				printf("PROTECTED ");
+				break;
+			default:
+				printf("ERREUR: visibilite du symbole inconnu ");
+				break;
+		}
+
+		switch (sym.st_shndx)
+		{
+			case SHN_UNDEF:
+				printf("UND ");
+				break;
+			case SHN_ABS:
+				printf("ABS ");
+				break;
+			default:
+				printf("%d ", sym.st_shndx);
+				break;
+		}
+
+	// se deplacer vers l'indice du string table correspondant au nom du symbole et afficher le nom
+
+		closeBinFile();
+		openBinFile();
+
+		skipData((strtab_offset + sym.st_name) * 8);
+
+		c = readByte();
+		while (c)
+		{
+			printf("%c", c);
+			c = readByte();
+		}
+		printf("\n");
+
+	// revenir au prochain symbole a afficher
+
+		closeBinFile();
+		openBinFile();
+
+		skipData((symtab_offset + ((i + 1) * symtab_entsize)) * 8);
+	}
     
 	return;
 }
