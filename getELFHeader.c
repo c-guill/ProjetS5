@@ -146,7 +146,7 @@ void afficherELFHeader(BFILE *file) {
     }
     printf("%x\n",T[55]);
 
-    printf("  Début des en-têtes de programme :  %d (octets dans le fichier)\n", hextoDec(T,56,63));
+    printf("  Début des en-têtes de programme :  %d (octets dans le fichier)\n", hextoDec(T,56,63));
     printf("  Début des en-têtes de section :    %d (octets dans le fichier)\n", hextoDec(T,64,71));
 
     printf("  Fanions:                           ");
