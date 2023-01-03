@@ -314,7 +314,7 @@ void afficherSymbolTable(void)
 		sym.st_other = readByte();
 		sym.st_shndx = readHalf();
 
-		printf("     %d: %x %d ", i, sym.st_value, sym.st_size);
+		printf("     %d: %08x %d ", i, sym.st_value, sym.st_size);
 
 		switch (ELF32_ST_TYPE(sym.st_info))
 		{
