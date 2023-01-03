@@ -16,16 +16,16 @@ do
   if [[ $ext == o ]]
   then
     echo "Test sur le fichier $file:"
-    echo "option: -h"
-    diff -q <(./$h $file) <(readelf -h $file)
+    echo "option: -h "
+    diff <(./$h $file) <(readelf -h $file)
     echo "option: -S"
-    diff -w <(./$S $file) <(readelf -S $file)
-#    echo "option: -x"
-#    diff -q <(./$x $file) <(readelf -x $file)
-#    echo "option: -s"
-#    diff -w <(./$s $file) <(readelf -s $file)
-#    echo "option: -r"
-#    diff -w <(./$r $file) <(readelf -r $file)
+    diff -a -w  --color <(./$S $file) <(readelf -S $file)
+    echo "option: -x"
+#    diff -w <(./$x $file) <(readelf -x $file)
+    echo "option: -s"
+    diff -w --color <(./$s $file) <(readelf -s $file)
+    echo "option: -r"
+    diff -w --color <(./$r $file) <(readelf -r $file)
 
   fi
 done

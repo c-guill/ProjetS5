@@ -241,7 +241,7 @@ void afficherSectionHeaderTable(void)
 	}
 
 	printf("Il y a %d en-têtes de section, débutant à l'adresse de décalage 0x%x:", e_shnum, e_shoff);
-	printf("\n\nEn-têtes de section :\n");
+	printf("\n\nEn-têtes de section :\n");
 	printf("  [Nr] Nom Type Adr Décala. Taille ES Fan LN Inf Al\n");
 
 	for (i = 0; i < e_shnum; i++)
@@ -369,7 +369,7 @@ void afficherSectionHeaderTable(void)
 		skipData((e_shoff + ((i + 1) * e_shentsize)) * 8);
 	}
 
-	printf("Clé des fanions :\n  W (écriture), A (allocation), X (exécution), M (fusion), S (chaînes), I (info),\n  L (ordre des liens), O (traitement supplémentaire par l'OS requis), G (groupe),\n  T (TLS), C (compressé), x (inconnu), o (spécifique à l'OS), E (exclu),\n  y (purecode), p (processor specific)\n");
+	printf("Clé des fanions :\n  W (écriture), A (allocation), X (exécution), M (fusion), S (chaînes), I (info),\n  L (ordre des liens), O (traitement supplémentaire par l'OS requis), G (groupe),\n  T (TLS), C (compressé), x (inconnu), o (spécifique à l'OS), E (exclu),\n  y (purecode), p (processor specific)\n");
 
 	return;
 }
