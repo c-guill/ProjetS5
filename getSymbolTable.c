@@ -285,7 +285,7 @@ void afficherSymbolTable(void)
 
 // afficher le nom de la section table des symboles
 
-	printf("\nLa table de symboles « ");
+	printf("\nLa table de symboles « ");
 
 	c = readByte();
 	while (c)
@@ -294,7 +294,7 @@ void afficherSymbolTable(void)
 		c = readByte();
 	}
 
-	printf(" » contient %d entrées :\n", symtab_size / symtab_entsize);
+	printf(" » contient %d entrées :\n", symtab_size / symtab_entsize);
 
 // se deplacer vers le debut de la table des symboles et la lire
 
@@ -314,7 +314,7 @@ void afficherSymbolTable(void)
 		sym.st_other = readByte();
 		sym.st_shndx = readHalf();
 
-		printf("     %d: %x %d ", i, sym.st_value, sym.st_size);
+		printf("     %d: %08x %d ", i, sym.st_value, sym.st_size);
 
 		switch (ELF32_ST_TYPE(sym.st_info))
 		{

@@ -411,7 +411,7 @@ void afficherRelocationTable(void)
 				if (rel_shdr.sh_type == SHT_RELA)
 					r_addend = readWord();
 
-				printf("%x %x ", r_offset, r_info);
+				printf("%08x %08x ", r_offset, r_info);
 
 				switch (ELF32_R_TYPE(r_info))
 				{
@@ -456,7 +456,7 @@ void afficherRelocationTable(void)
 					skipData(8);
 					sym.st_shndx = readHalf();
 
-					printf("%x ", sym.st_value);
+					printf("%08x ", sym.st_value);
 
 					closeBinFile();
 					openBinFile();
