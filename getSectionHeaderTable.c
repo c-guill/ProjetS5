@@ -201,7 +201,7 @@ void afficherSectionHeaderTable(void)
 	Elf32_Half e_shentsize, e_shnum, e_shstrndx;
 	Elf32_Shdr shdr;
 	char c;
-	int i;
+	int i, n;
 
 // recuperer infos dans le ELF header
 	
@@ -266,13 +266,15 @@ void afficherSectionHeaderTable(void)
 
 		skipData((shstrtab_offset + shdr.sh_name) * 8);
 
-	// afficher le nom de la section
+	// afficher le nom de la section (readelf n'affiche que les 17 premiers caracteres)
 
+		n = 0;
 		c = readByte();
-		while (c)
+		while (c && n < 17)
 		{
 			printf("%c", c);
 			c = readByte();
+			n++;
 		}
 		printf(" ");
 
