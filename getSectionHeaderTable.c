@@ -24,6 +24,7 @@ char fmode[1]; // mode d'ouverture du fichier objet
 int nbits; // nombre de bits lus dans le fichier
 
 
+
 //
 // Ouvrir un fichier binaire en acces bit a bit
 //
@@ -344,9 +345,11 @@ void afficherSectionHeaderTable(void)
 				printf("ERREUR: type de section header inconnu ou non géré par notre programme ");
 		}
 
-		printf("%x %x %x %x ", shdr.sh_addr, shdr.sh_offset, shdr.sh_size, shdr.sh_entsize);
 
-		if ((shdr.sh_flags & FLAG_WRITE) == FLAG_WRITE) printf("W");
+
+		printf("%08x %06x %06x %02x ", shdr.sh_addr, shdr.sh_offset, shdr.sh_size, shdr.sh_entsize);
+
+        if ((shdr.sh_flags & FLAG_WRITE) == FLAG_WRITE) printf("W");
 		if ((shdr.sh_flags & FLAG_ALLOC) == FLAG_ALLOC) printf("A");
 		if ((shdr.sh_flags & FLAG_EXECINSTR) == FLAG_EXECINSTR) printf("X");
 		if ((shdr.sh_flags & FLAG_M) == FLAG_M) printf("M");
