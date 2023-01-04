@@ -9,7 +9,6 @@ S=$1/getSectionHeaderTable
 x=$1/getSection
 s=$1/getSymbolTable
 r=$1/getRelocationTable
-#diff -q <(./$h elf/Examples_fusion/file1.o) <(readelf -h elf/Examples_fusion/file1.o)
 for file in "$2"*
 do
   ext="${file##*.}"
@@ -21,7 +20,16 @@ do
     echo "option: -S"
     diff -a -w  --color <(./$S $file) <(readelf -S $file)
     echo "option: -x"
-#    diff -w <(./$x $file) <(readelf -x $file)
+    i=0
+    v=$($x $i $file)
+    v2=$( readelf -x $i $file )
+    while [[ $v != "" && $v2 != "" ]]
+    do
+    diff -w --color <(echo $v) <(echo $v2)
+    i=$( expr $i + 1 )
+    v=$($x $i $file)
+    v2=$( readelf -x $i $file )
+    done
     echo "option: -s"
     diff -w --color <(./$s $file) <(readelf -s $file)
     echo "option: -r"
