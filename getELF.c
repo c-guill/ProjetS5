@@ -36,7 +36,6 @@ Elf32_Ehdr lireHeaderElf(FILE* f){
         ehdr.e_shnum = reverse_2(ehdr.e_shnum);
         ehdr.e_shstrndx = reverse_2(ehdr.e_shstrndx);
     }
-    fseek(f,ehdr.e_shoff-ehdr.e_ehsize,SEEK_CUR);
     return ehdr;
 }
 
@@ -66,6 +65,20 @@ Elf32_Shdr lireSectionHeader(FILE* f){
 
     }
 
+    return shdr;
+}
+
+Elf32_Shdr *lireSecHeaTable(FILE *f,Elf32_Ehdr ehdr){
+    Elf32_Shdr *shdr=malloc(sizeof(Elf32_Shdr)*ehdr.e_shnum);
+    if(shdr==NULL){
+        printf("Erreur d'allocation du tableau de section Header\n");
+        exit(1);
+    }
+    for(int i=0;i<ehdr.e_shnum;i++){
+        shdr[i]=lireSectionHeader(f);
+
+
+    }
     return shdr;
 }
 
