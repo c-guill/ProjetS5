@@ -51,6 +51,19 @@ Elf32_Shdr lireSectionHeader(FILE* f){
     fread(&shdr.sh_info,4,1,f);
     fread(&shdr.sh_addralign,4,1,f);
     fread(&shdr.sh_entsize,4,1,f);
+    if(!is_big_endian()){
+        shdr.sh_name = reverse_4(shdr.sh_name);
+        shdr.sh_type = reverse_4(shdr.sh_type);
+        shdr.sh_flags = reverse_4(shdr.sh_flags);
+        shdr.sh_addr = reverse_4(shdr.sh_addr);
+        shdr.sh_offset = reverse_4(shdr.sh_offset);
+        shdr.sh_size = reverse_4(shdr.sh_size);
+        shdr.sh_link = reverse_4(shdr.sh_link);
+        shdr.sh_info = reverse_4(shdr.sh_info);
+        shdr.sh_addralign = reverse_4(shdr.sh_addralign);
+        shdr.sh_entsize = reverse_4(shdr.sh_entsize);
+
+    }
 
     return shdr;
 }
