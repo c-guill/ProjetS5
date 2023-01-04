@@ -338,7 +338,7 @@ void afficherSectionNum(int section_num)
 
 	if (shdr.sh_type == SHT_NULL || shdr.sh_type == SHT_NOBITS || shdr.sh_size == 0)
 	{
-		printf("La section « ");
+		printf("La section « ");
 
 	// se deplacer vers l'indice du section header string table correspondant au nom de la section
 
@@ -356,11 +356,11 @@ void afficherSectionNum(int section_num)
 			c = readByte();
 		}
 
-		printf(" » n'a pas de données à vidanger.\n");
+		printf(" » n'a pas de données à vidanger.\n");
 		exit(0);
 	}
 
-	printf("\nVidange hexadécimale de la section « ");
+	printf("\nVidange hexadécimale de la section « ");
 
 // se deplacer vers l'indice du section header string table correspondant au nom de la section
 
@@ -378,7 +378,7 @@ void afficherSectionNum(int section_num)
 		c = readByte();
 	}
 
-	printf(" » :\n");
+	printf(" » :\n");
 
 // afficher une note si cette section a des readressages
 
@@ -412,7 +412,7 @@ void afficherSectionNum(int section_num)
 
 	skipData(shdr.sh_offset * 8);
 
-	printf("  0x00 ");
+	printf("  0x00000000 ");
 
 	for (i = 0; i < shdr.sh_size; i++)
 	{
@@ -426,7 +426,7 @@ void afficherSectionNum(int section_num)
 				else
 					printf(".");
 			}
-			printf("\n  0x%x ", i);
+			printf("\n  0x%08x ", i);
 		}
 		else if (i != 0 && i % 4 == 0)
 		{
@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			fprintf(stderr, "readelf: AVERTISSEMENT: La section « %s » n'a pas été vidangée parce qu'inexistante !\n", argv[1]);
+			fprintf(stderr, "readelf: AVERTISSEMENT: La section « %s » n'a pas été vidangée parce qu'inexistante !\n", argv[1]);
 		}
 	}
 
