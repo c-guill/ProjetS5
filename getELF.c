@@ -36,7 +36,6 @@ Elf32_Ehdr lireHeaderElf(FILE* f){
         ehdr.e_shnum = reverse_2(ehdr.e_shnum);
         ehdr.e_shstrndx = reverse_2(ehdr.e_shstrndx);
     }
-    fseek(f,ehdr.e_shoff-ehdr.e_ehsize,SEEK_CUR);
     return ehdr;
 }
 
