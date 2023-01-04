@@ -16,7 +16,7 @@ do
   then
     echo "Test sur le fichier $file:"
     echo "option: -h "
-    diff <(./$h $file) <(readelf -h $file)
+    diff -w --color <(./$h $file) <(readelf -h $file)
     echo "option: -S"
     diff -a -w  --color <(./$S $file) <(readelf -S $file)
     echo "option: -x"

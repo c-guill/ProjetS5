@@ -1,38 +1,36 @@
 CC=clang 
-CFLAGS=-g -Wall -Werror
+CFLAGS=-g -Wall
 
 # "make all" pour generer les executables de chaque etape de la phase 1
-all: fusionELF getELFHeader getRelocationTable getSymbolTable getSection getSectionHeaderTable
+all: getELFHeader #getRelocationTable getSymbolTable getSection getSectionHeaderTable
 
-fusionELF: fusionELF.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
 
-getELFHeader: getELFHeader.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
+getELFHeader: getELFHeader.o util.o getELF.o
+	$(CC) $^ -o $@
 
-getRelocationTable: getRelocationTable.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
+#getRelocationTable: getRelocationTable.o  util.o getELF.o
+#	$(CC) $^ -o $@
 
-getSection: getSection.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
+# getSection: getSection.o  util.o getELF.o
+# 	$(CC) $^ -o $@
 
-getSectionHeaderTable: getSectionHeaderTable.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
+# getSectionHeaderTable: getSectionHeaderTable.o  util.o getELF.o
+# 	$(CC) $^ -o $@
 
-getSymbolTable: getSymbolTable.o bfile.o bit_operations.o
-	$(CC) $^ -o $@ -lm
+# getSymbolTable: getSymbolTable.o  util.o getELF.o
+# 	$(CC) $^ -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
-fusionELF.o: bfile.h
-getELFHeader.o: bfile.h
-getRelocationTable.o: bfile.h
-getSection.o: bfile.h
-getSymbolTable.o: bfile.h
-getSectionHeaderTable.o: bfile.h
-bfile.o: bfile.h bit_operations.h
-bit_operations.o: bit_operations.h
+getELFHeader.o: getELF.h util.h
+#getRelocationTable.o:  getELF.h util.h
+#getSection.o:  getELF.h util.h
+#getSymbolTable.o:  getELF.h util.h
+#getSectionHeaderTable.o:  getELF.h util.h
+getELF.o:util.h
+
+
 
 clean:
-	rm -f *.o fusionELF getELFHeader getRelocationTable getSection getSectionHeaderTable getSymbolTable
+	rm -f *.o getELFHeader getRelocationTable getSection getSectionHeaderTable getSymbolTable
