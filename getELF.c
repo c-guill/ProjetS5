@@ -67,7 +67,6 @@ Elf32_Shdr lireSectionHeader(FILE* f){
 
     return shdr;
 }
-
 Elf32_Shdr *lireSecHeaTable(FILE *f,Elf32_Ehdr ehdr){
     Elf32_Shdr *shdr=malloc(sizeof(Elf32_Shdr)*ehdr.e_shnum);
     if(shdr==NULL){
@@ -80,6 +79,20 @@ Elf32_Shdr *lireSecHeaTable(FILE *f,Elf32_Ehdr ehdr){
 
     }
     return shdr;
+}
+
+char *lireSectionName(FILE *f, Elf32_Shdr shdr){
+    char *c=malloc(sizeof(char)*shdr.sh_size);
+    int i;
+    if(c==NULL){
+        printf("Erreur d'allocation du tableau de char\n");
+        exit(1);
+    }
+    for (i = 0; i < shdr.sh_size; ++i) {
+        fread(&c[i],1,1,f);
+    }
+    c[i] = '\0';
+    return c;
 }
 
 Elf32_Sym lireSymbol(FILE* f){

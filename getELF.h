@@ -4,9 +4,12 @@
 
 Elf32_Ehdr lireHeaderElf(FILE* f);
 Elf32_Shdr lireSectionHeader(FILE* f);
+Elf32_Shdr *lireSecHeaTable(FILE* f, Elf32_Ehdr ehdr);
 Elf32_Sym lireSymbol(FILE* f);
 Elf32_Rel lireRelocation(FILE* f);
 Elf32_Rela lireRelocationA(FILE* f);
+char *lireSectionName(FILE* f, Elf32_Shdr shdr);
+
 
 
 #endif

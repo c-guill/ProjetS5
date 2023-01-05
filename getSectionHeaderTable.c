@@ -1,7 +1,5 @@
 #include <elf.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "getELF.h"
 
@@ -22,8 +20,18 @@ void afficherSectionHeaderTable(FILE *file)
 {
     Elf32_Ehdr ehdr;
     Elf32_Shdr shdr;
+    Elf32_Shdr *shdrtab;
+    char *tabC;
+    char c;
+    int n;
     ehdr=lireHeaderElf(file);
-	if (ehdr.e_shnum == 0)
+    fseek(file,ehdr.e_shoff-ehdr.e_ehsize,SEEK_CUR);
+    shdrtab=lireSecHeaTable(file,ehdr);
+    fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
+    tabC=lireSectionName(file,shdrtab[ehdr.e_shstrndx]);
+
+
+    if (ehdr.e_shnum == 0)
 	{
 		printf("Le fichier ne possede aucune en-tete de section\n");
 		return;
@@ -34,19 +42,20 @@ void afficherSectionHeaderTable(FILE *file)
 	printf("  [Nr] Nom Type Adr Décala. Taille ES Fan LN Inf Al\n");
 	for (int i = 0; i < ehdr.e_shnum; i++)
 	{
-        shdr=lireSectionHeader(file);
         printf("  [%d] ", i);
-
+        shdr=shdrtab[i];
 	// afficher le nom de la section (readelf n'affiche que les 17 premiers caracteres)
-//		n = 0;
-//		c = readByte();
-//		while (c && n < 17)
-//		{
-//			printf("%c", c);
-//			c = readByte();
-//			n++;
-//		}
-		printf("NOM %x ",shdr.sh_type);
+
+		n = 0;
+		c = tabC[shdr.sh_name];
+		while (c && n < 17)
+		{
+			printf("%c", c);
+			n++;
+            c = tabC[shdr.sh_name+n];
+        }
+
+		printf(" ");
 
 		switch (shdr.sh_type)
 		{
