@@ -42,9 +42,9 @@ void afficherSymbolTable(FILE *file)
     symtab = lireSymTable(file, shdr);
     quantite = shdr.sh_size/16;
     fseek(file,shdrtab[shdr.sh_link].sh_offset,SEEK_SET);
-    tabCSym=lireSymbolName(file,shdrtab[shdr.sh_link]);
+    tabCSym=lireSection(file,shdrtab[shdr.sh_link]);
     fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
-    tabC=lireSectionName(file,shdrtab[ehdr.e_shstrndx]);
+    tabC=lireSection(file,shdrtab[ehdr.e_shstrndx]);
 
 
 // afficher le nom de la section table des symboles

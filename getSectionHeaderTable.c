@@ -27,7 +27,7 @@ void afficherSectionHeaderTable(FILE *file)
     fseek(file,ehdr.e_shoff-ehdr.e_ehsize,SEEK_CUR);
     shdrtab=lireSecHeaTable(file,ehdr);
     fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
-    tabC=lireSectionName(file,shdrtab[ehdr.e_shstrndx]);
+    tabC=lireSection(file,shdrtab[ehdr.e_shstrndx]);
 
 
     if (ehdr.e_shnum == 0)
