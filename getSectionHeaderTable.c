@@ -1,6 +1,5 @@
 #include <elf.h>
 #include <stdio.h>
-#include <string.h>
 #include "getELF.h"
 
 #define FLAG_WRITE (1 << 0)

@@ -75,13 +75,25 @@ Elf32_Shdr *lireSecHeaTable(FILE *f,Elf32_Ehdr ehdr){
     }
     for(int i=0;i<ehdr.e_shnum;i++){
         shdr[i]=lireSectionHeader(f);
-
-
     }
     return shdr;
 }
 
 char *lireSectionName(FILE *f, Elf32_Shdr shdr){
+    char *c=malloc(sizeof(char)*shdr.sh_size);
+    int i;
+    if(c==NULL){
+        printf("Erreur d'allocation du tableau de char\n");
+        exit(1);
+    }
+    for (i = 0; i < shdr.sh_size; ++i) {
+        fread(&c[i],1,1,f);
+    }
+    c[i] = '\0';
+    return c;
+}
+
+char *lireSymbolName(FILE *f, Elf32_Shdr shdr){
     char *c=malloc(sizeof(char)*shdr.sh_size);
     int i;
     if(c==NULL){
@@ -103,7 +115,26 @@ Elf32_Sym lireSymbol(FILE* f){
     fread(&sym.st_info,1,1,f);
     fread(&sym.st_other,1,1,f);
     fread(&sym.st_shndx,2,1,f);
+    if(!is_big_endian()){
+        sym.st_name = reverse_4(sym.st_name);
+        sym.st_value = reverse_4(sym.st_value);
+        sym.st_size = reverse_4(sym.st_size);
+        sym.st_shndx = reverse_2(sym.st_shndx);
+    }
 
+        return sym;
+}
+
+Elf32_Sym *lireSymTable(FILE *f,Elf32_Shdr shdr){
+    int quantite = shdr.sh_size/16;
+    Elf32_Sym *sym=malloc(sizeof(Elf32_Sym)*quantite);
+    if(sym==NULL){
+        printf("Erreur d'allocation du tableau de symbol\n");
+        exit(1);
+    }
+    for(int i=0;i<quantite;i++){
+        sym[i]=lireSymbol(f);
+    }
     return sym;
 }
 
