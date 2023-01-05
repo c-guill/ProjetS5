@@ -10,7 +10,7 @@ Elf32_Sym *lireSymTable(FILE* f, Elf32_Shdr shdr);
 Elf32_Sym lireSymbol(FILE* f);
 Elf32_Rel lireRelocation(FILE* f);
 Elf32_Rela lireRelocationA(FILE* f);
-char *lireSectionName(FILE* f, Elf32_Shdr shdr);
+char *lireSection(FILE* f, Elf32_Shdr shdr);
 char *lireSymbolName(FILE* f, Elf32_Shdr shdr);
 
 
