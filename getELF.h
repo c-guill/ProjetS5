@@ -1,6 +1,7 @@
 #ifndef __GETELF_H__
 #define __GETELF_H__
 #include <elf.h>
+#include <stdio.h>
 
 Elf32_Ehdr lireHeaderElf(FILE* f);
 Elf32_Shdr lireSectionHeader(FILE* f);
