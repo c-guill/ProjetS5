@@ -117,7 +117,7 @@ Elf32_Sym *lireSymTable(FILE *f,Elf32_Shdr shdr){
     int quantite = shdr.sh_size/16;
     Elf32_Sym *sym=malloc(sizeof(Elf32_Sym)*quantite);
     if(sym==NULL){
-        printf("Erreur d'allocation du tableau de symbol\n");
+        printf("Erreur d'allocation du tableau de symbole\n");
         exit(1);
     }
     for(int i=0;i<quantite;i++){
@@ -130,7 +130,10 @@ Elf32_Rel lireRelocation(FILE* f){
     Elf32_Rel rel;
     fread(&rel.r_offset,4,1,f);
     fread(&rel.r_info,4,1,f);
-
+    if(!is_big_endian()) {
+        rel.r_info = reverse_4(rel.r_info);
+        rel.r_offset = reverse_4(rel.r_offset);
+    }
     return rel;
 }
 
@@ -139,6 +142,62 @@ Elf32_Rela lireRelocationA(FILE* f){
     fread(&rela.r_offset,4,1,f);
     fread(&rela.r_info,4,1,f);
     fread(&rela.r_addend,4,1,f);
-
+    if(!is_big_endian()) {
+        rela.r_info = reverse_4(rela.r_info);
+        rela.r_offset = reverse_4(rela.r_offset);
+        rela.r_addend = reverse_4(rela.r_addend);
+    }
     return rela;
+}
+
+Elf32_Rel *lireRelocationTable(FILE *f,Elf32_Shdr shdr){
+    int quantite = shdr.sh_size / shdr.sh_entsize;
+    Elf32_Rel *rel=malloc(sizeof(Elf32_Rel)*quantite);
+    if(rel==NULL){
+        printf("Erreur d'allocation du tableau de relocation\n");
+        exit(1);
+    }
+    for(int i=0;i<quantite;i++){
+        rel[i]=lireRelocation(f);
+    }
+    return rel;
+}
+
+Elf32_Rela *lireRelocationATable(FILE *f,Elf32_Shdr shdr){
+    int quantite = shdr.sh_size / shdr.sh_entsize;
+    Elf32_Rela *rela=malloc(sizeof(Elf32_Rela)*quantite);
+    if(rela==NULL){
+        printf("Erreur d'allocation du tableau de relocation\n");
+        exit(1);
+    }
+    for(int i=0;i<quantite;i++){
+        rela[i]=lireRelocationA(f);
+    }
+    return rela;
+}
+// les argument rel et rela sont dans des tableaux vides
+void lireRelocationTableComplete(FILE *f, Elf32_Ehdr ehdr, Elf32_Shdr *shdrtab, Elf32_Rel **rel, Elf32_Rela **rela){
+    Elf32_Shdr shdr;
+    int y1 = 0;
+    int y2 = 0;
+    for (int i = 0; i < ehdr.e_shnum; i++){
+        shdr=shdrtab[i];
+        if (shdr.sh_type == SHT_REL ){
+            rel[y1] = malloc(sizeof(Elf32_Rel)*shdr.sh_size / shdr.sh_entsize);
+            if(rel[y1]==NULL){
+                printf("Erreur d'allocation du tableau de relocation\n");
+                exit(1);
+            }
+            rel[y1]= lireRelocationTable(f,shdr);
+            y1++;
+        } else if(shdr.sh_type == SHT_RELA){
+            rela[y2] = malloc(sizeof(Elf32_Rela)*shdr.sh_size / shdr.sh_entsize);
+            if(rela[y2]==NULL){
+                printf("Erreur d'allocation du tableau de relocation\n");
+                exit(1);
+            }
+            rela[y2]= lireRelocationATable(f,shdr);
+            y2++;
+        }
+    }
 }
