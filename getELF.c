@@ -110,11 +110,11 @@ Elf32_Sym lireSymbol(FILE* f){
         sym.st_shndx = reverse_2(sym.st_shndx);
     }
 
-        return sym;
+    return sym;
 }
 
 Elf32_Sym *lireSymTable(FILE *f,Elf32_Shdr shdr){
-    int quantite = shdr.sh_size/16;
+    int quantite = shdr.sh_size/shdr.sh_entsize;
     Elf32_Sym *sym=malloc(sizeof(Elf32_Sym)*quantite);
     if(sym==NULL){
         printf("Erreur d'allocation du tableau de symbole\n");
