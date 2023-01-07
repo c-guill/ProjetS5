@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "getELF.h"
 #include "util.h"
 
@@ -80,6 +81,8 @@ Elf32_Shdr *lireSecHeaTable(FILE *f,Elf32_Ehdr ehdr){
 }
 
 char *lireSection(FILE *f, Elf32_Shdr shdr){
+	if (shdr.sh_size == 0)
+		return NULL;
     char *c=malloc(sizeof(char)*shdr.sh_size);
     int i;
     if(c==NULL){
@@ -200,4 +203,97 @@ void lireRelocationTableComplete(FILE *f, Elf32_Ehdr ehdr, Elf32_Shdr *shdrtab, 
             y2++;
         }
     }
+}
+
+ELF_FILE lireFichierELF(FILE *f)
+{
+	ELF_FILE felf;
+	Elf32_Shdr shdr;
+	int i, iscodetab, ireltabtab, irelatabtab;
+
+	felf.ehdr = lireHeaderElf(f);
+
+// allocations memoire pour les tables de tables
+
+	felf.scodetab = (char **)malloc(sizeof(char *) * felf.ehdr.e_shnum);
+	if (!felf.scodetab)
+	{
+		printf("Erreur d'allocation de la table des contenus des sections de code\n");
+		exit(1);
+	}
+	memset(felf.scodetab, 0, sizeof(char *) * felf.ehdr.e_shnum);
+
+	felf.reltabtab = (Elf32_Rel **)malloc(sizeof(Elf32_Rel *) * felf.ehdr.e_shnum);
+	if (!felf.reltabtab)
+	{
+		printf("Erreur d'allocation de la table des tables de reimplantations\n");
+		exit(1);
+	}
+	memset(felf.reltabtab, 0, sizeof(Elf32_Rel *) * felf.ehdr.e_shnum);
+
+	felf.relatabtab = (Elf32_Rela **)malloc(sizeof(Elf32_Rela *) * felf.ehdr.e_shnum);
+	if (!felf.relatabtab)
+	{
+		printf("Erreur d'allocation de la table des tables de reimplantations addend\n");
+		exit(1);
+	}
+	memset(felf.relatabtab, 0, sizeof(Elf32_Rela *) * felf.ehdr.e_shnum);
+
+// lecture des sections
+
+	fseek(f, felf.ehdr.e_shoff, SEEK_SET);
+	felf.shdrtab = lireSecHeaTable(f, felf.ehdr);
+
+	iscodetab = 0;
+	ireltabtab = 0;
+	irelatabtab = 0;
+
+	for (i = 0; i < felf.ehdr.e_shnum; i++)
+	{
+		shdr = felf.shdrtab[i];
+		fseek(f, shdr.sh_offset, SEEK_SET);
+
+		switch (shdr.sh_type)
+		{
+			case SHT_STRTAB:
+				if (i == felf.ehdr.e_shstrndx)
+					felf.shstrtab = lireSection(f, shdr);
+				else
+					felf.strtab = lireSection(f, shdr);
+				break;
+			
+			case SHT_SYMTAB:
+				felf.symtab = lireSymTable(f, shdr);
+				break;
+			
+			case SHT_PROGBITS:
+				felf.scodetab[iscodetab] = lireSection(f, shdr);
+				iscodetab++;
+				break;
+			
+			case SHT_REL:
+				felf.reltabtab[ireltabtab] = lireRelocationTable(f, shdr);
+				ireltabtab++;
+				break;
+			
+			case SHT_RELA:
+				felf.relatabtab[irelatabtab] = lireRelocationATable(f, shdr);
+				irelatabtab++;
+				break;
+
+			case SHT_ARM_ATTRIBUTES:
+				felf.arm_attrib = lireSection(f, shdr);
+				break;
+			
+			case SHT_NULL:
+				case SHT_NOBITS:
+				break;
+			
+			default:
+				fprintf(stderr, "ERREUR lors de la lecture du fichier : type de section %x non gere\n", shdr.sh_type);
+				break;
+		}
+	}
+
+	return felf;
 }
