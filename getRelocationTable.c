@@ -9,8 +9,8 @@
 //
 void afficherRelocationTable(FILE *file)
 {
-	char c;
-	int i, j, k , q, n =0;
+        char c;
+        int i, j, k , q, n =0;
     Elf32_Ehdr ehdr;
     Elf32_Shdr shdr;
     Elf32_Sym sym;
@@ -89,15 +89,15 @@ void afficherRelocationTable(FILE *file)
     }
     lireRelocationTableComplete(file,ehdr,shdrtab,rel,rela);
 
-	for (i = 0; i < ehdr.e_shnum; i++)
-	{
+        for (i = 0; i < ehdr.e_shnum; i++)
+        {
         shdr=shdrtab[i];
         sym=symtab[shdr.sh_size];
-		if (shdr.sh_type == SHT_REL || shdr.sh_type == SHT_RELA)
-		{
-			printf("\nSection de réadressage '");
+                if (shdr.sh_type == SHT_REL || shdr.sh_type == SHT_RELA)
+                {
+                        printf("\nSection de réadressage '");
 
-		// afficher infos sur la section de relogement
+                // afficher infos sur la section de relogement
 
         n=0;
         c = tabC[shdr.sh_name];
@@ -113,16 +113,16 @@ void afficherRelocationTable(FILE *file)
             printf("entrée:\n");
         else
             printf("entrées:\n");
-		
-		// afficher le contenu de la section de relogement
+                
+                // afficher le contenu de la section de relogement
 
-			printf("Décalage Info Type Val.-sym Noms-symboles\n");
+                        printf("Décalage Info Type Val.-sym Noms-symboles\n");
 
 
-	
-			for (j = 0; j < shdr.sh_size / shdr.sh_entsize; j++)
-			{
-			// afficher infos sur le relogement
+        
+                        for (j = 0; j < shdr.sh_size / shdr.sh_entsize; j++)
+                        {
+                        // afficher infos sur le relogement
                 if (shdr.sh_type == SHT_REL){
                     r_offset = rel[curs1][j].r_offset;
                     r_info = rel[curs1][j].r_info;
@@ -132,32 +132,32 @@ void afficherRelocationTable(FILE *file)
                     r_addend = rela[curs2][j].r_addend;
                 }
 
-				printf("%08x %08x ", r_offset, r_info);
+                                printf("%08x %08x ", r_offset, r_info);
 
-				switch (ELF32_R_TYPE(r_info))
-				{
-					case R_ARM_ABS32:
-						printf("R_ARM_ABS32 ");
-						break;
-					case R_ARM_CALL:
-						printf("R_ARM_CALL ");
-						break;
-					case R_ARM_JUMP24:
-						printf("R_ARM_JUMP24 ");
-						break;
-					default:
-						printf("Non géré par notre programme ");
-						break;
-				}
-			// afficher infos sur le symbole a reloger
+                                switch (ELF32_R_TYPE(r_info))
+                                {
+                                        case R_ARM_ABS32:
+                                                printf("R_ARM_ABS32 ");
+                                                break;
+                                        case R_ARM_CALL:
+                                                printf("R_ARM_CALL ");
+                                                break;
+                                        case R_ARM_JUMP24:
+                                                printf("R_ARM_JUMP24 ");
+                                                break;
+                                        default:
+                                                printf("Non géré par notre programme ");
+                                                break;
+                                }
+                        // afficher infos sur le symbole a reloger
 
-				if (ELF32_R_SYM(r_info) == STN_UNDEF)
-				{
-					printf("symbole non defini\n");
-				}
-				else
-				{
-					printf("%08x ", sym.st_value);
+                                if (ELF32_R_SYM(r_info) == STN_UNDEF)
+                                {
+                                        printf("symbole non defini\n");
+                                }
+                                else
+                                {
+                                        printf("%08x ", sym.st_value);
 
 
                     n=0;
@@ -168,19 +168,19 @@ void afficherRelocationTable(FILE *file)
                         n++;
                         c = tabCSym[shdr.sh_name+n];
                     }
-					printf("\n");
-				}
+                                        printf("\n");
+                                }
 
 
-			}
+                        }
             if (shdr.sh_type == SHT_REL){
                 curs1++;
             } else if(shdr.sh_type == SHT_RELA){
                 curs2++;
             }
 
-		}
-	}
+                }
+        }
 
 }
 
