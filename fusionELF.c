@@ -14,17 +14,17 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
 {
     int i, j, k;
 
-    felfR->scodetab = (unsigned char **)malloc(sizeof(unsigned char *) * felf1->ehdr.e_shnum);
+    felfR->scodetab = (unsigned char **)malloc(sizeof(unsigned char *) * (felf1->ehdr.e_shnum + felf2->ehdr.e_shnum));
     fusion->off_concat = (int *)malloc(sizeof(int) * felf2->ehdr.e_shnum);
 
-// afficher sections de code du premier fichier
+// parcourir les sections du premier fichier
 
     for (i = 0; i < felf1->ehdr.e_shnum; i++)
     {
         if (felf1->shdrtab[i].sh_type != SHT_PROGBITS)
             continue;
 
-    // afficher le contenu de la section
+    // fusionner sections de code
         //free(felfR->scodetab[i]);
         felfR->scodetab[i] = (unsigned char *)malloc(sizeof(unsigned char) * felf1->shdrtab[i].sh_size);
         for (j = 0; j < felf1->shdrtab[i].sh_size; j++)
@@ -57,6 +57,10 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
                     //c = felf1->scodetab[i][j];
                     //printf("%02x ", c);
                 }
+
+            // modifier infos section header et memoriser offset concatenation
+
+                felfR->shdrtab[i].sh_size += felf2->shdrtab[j].sh_size;
                 fusion->off_concat[j] = felf1->shdrtab[i].sh_size;
 /*
                 printf("felfR->scodetab[i] apres concat : ");
@@ -73,6 +77,36 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
                 //    printf("%02x ", c);
                 //}
 */
+            }
+        }
+    }
+
+// parcourir les sections du deuxieme fichier
+
+    for (j = 0; j < felf2->ehdr.e_shnum; j++)
+    {
+        if (felf2->shdrtab[j].sh_type != SHT_PROGBITS)
+            continue;
+
+    // si pas de section correspondante dans le premier fichier, stocker son contenu
+
+        for (i = 0; i < felf1->ehdr.e_shnum; i++)
+        {
+            if (felf1->shdrtab[i].sh_type != SHT_PROGBITS)
+                continue;
+            
+            if (!strcmp((const char *)&felf1->shstrtab[felf1->shdrtab[i].sh_name], (const char *)&felf2->shstrtab[felf2->shdrtab[j].sh_name]))
+            {
+                break;
+            }
+        }
+
+        if (i == felf1->ehdr.e_shnum)
+        {
+            felfR->scodetab[felf1->ehdr.e_shnum + j] = (unsigned char *)malloc(sizeof(unsigned char) * felf2->shdrtab[j].sh_size);
+            for (k = 0; k < felf2->shdrtab[j].sh_size; k++)
+            {
+                felfR->scodetab[felf1->ehdr.e_shnum + j][k] = felf2->scodetab[j][k];
             }
         }
     }
@@ -108,7 +142,10 @@ int main(int argc, char **argv)
 	felf2 = lireFichierELF(f2);
 
     afficherFusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
-
+/*
+    int i;
+    for (i = 0; )
+*/
 	fclose(f1);
 	fclose(f2);
 
