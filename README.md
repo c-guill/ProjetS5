@@ -1,5 +1,7 @@
 # ProjetS5 Groupe 8
 
+**compiler tous les fichiers**
+
 make all
 
 **Etape 1:**
