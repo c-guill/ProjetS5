@@ -10,7 +10,7 @@
 void afficherRelocationTable(FILE *file)
 {
         char c;
-        int i, j, k , q, n =0;
+        int i, j, q, n =0;
     Elf32_Ehdr ehdr;
     Elf32_Shdr shdr;
     Elf32_Sym sym;
@@ -58,7 +58,6 @@ void afficherRelocationTable(FILE *file)
     fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
     tabC=lireSection(file,shdrtab[ehdr.e_shstrndx]);
 
-    fseek(file,shdrtab[5].sh_offset,SEEK_SET); //TODO
 
 // parcourir les section headers a la recherche de sections de relogements
     int q1 = 0;
@@ -70,17 +69,24 @@ void afficherRelocationTable(FILE *file)
     for (int i = 0; i < ehdr.e_shnum; i++){
         shdr=shdrtab[i];
         if (shdr.sh_type == SHT_REL) {
+            if(q1==0 && q2==0){
+                fseek(file,shdr.sh_offset,SEEK_SET);
+            }
             q1++;
             if (m1 < shdr.sh_size / shdr.sh_entsize){
                 m1 = shdr.sh_size / shdr.sh_entsize;
             }
         } else if(shdr.sh_type == SHT_RELA){
+            if(q1==0 && q2==0){
+                fseek(file,shdr.sh_offset,SEEK_SET);
+            }
             q2++;
             if (m2 < shdr.sh_size / shdr.sh_entsize){
                 m2 = shdr.sh_size / shdr.sh_entsize;
             }
         }
     }
+
     Elf32_Rel **rel=malloc(sizeof(Elf32_Rel *)*q1*m1);
     Elf32_Rela **rela=malloc(sizeof(Elf32_Rela *)*q2*m2);
     if(rel==NULL || rela == NULL){
@@ -92,7 +98,6 @@ void afficherRelocationTable(FILE *file)
         for (i = 0; i < ehdr.e_shnum; i++)
         {
         shdr=shdrtab[i];
-        sym=symtab[shdr.sh_size];
                 if (shdr.sh_type == SHT_REL || shdr.sh_type == SHT_RELA)
                 {
                         printf("\nSection de réadressage '");
@@ -132,7 +137,10 @@ void afficherRelocationTable(FILE *file)
                     r_addend = rela[curs2][j].r_addend;
                 }
 
-                                printf("%08x %08x ", r_offset, r_info);
+                sym=symtab[ELF32_R_SYM(r_info)];
+
+
+                            printf("%08x %08x ", r_offset, r_info);
 
                                 switch (ELF32_R_TYPE(r_info))
                                 {
@@ -159,20 +167,33 @@ void afficherRelocationTable(FILE *file)
                                 {
                                         printf("%08x ", sym.st_value);
 
-
                     n=0;
-                    c = tabC[shdr.sh_name];
-                    while (c)
-                    {
-                        printf("%c", c);
-                        n++;
-                        c = tabCSym[shdr.sh_name+n];
-                    }
-                                        printf("\n");
-                                }
 
-
+                    if(ELF32_ST_TYPE(sym.st_info) == STT_SECTION){
+                        c = tabC[shdrtab[sym.st_shndx].sh_name];
+                        while (c)
+                        {
+                            printf("%c", c);
+                            n++;
+                            c = tabC[shdrtab[sym.st_shndx].sh_name+n];
                         }
+                    }else{
+                        c = tabCSym[sym.st_name];
+                        while (c)
+                        {
+                            printf("%c", c);
+                            n++;
+                            c = tabCSym[sym.st_name+n];
+                        }
+                    }
+
+                                    printf("\n");
+
+
+                }
+
+
+            }
             if (shdr.sh_type == SHT_REL){
                 curs1++;
             } else if(shdr.sh_type == SHT_RELA){

@@ -205,7 +205,7 @@ void lireRelocationTableComplete(FILE *f, Elf32_Ehdr ehdr, Elf32_Shdr *shdrtab, 
             }
             rel[y1] = lireRelocationTable(f,shdr);
             y1++;
-        } else if (shdr.sh_type == SHT_RELA) {
+        }else if (shdr.sh_type == SHT_RELA) {
             rela[y2] = malloc(sizeof(Elf32_Rela)*shdr.sh_size / shdr.sh_entsize);
             if (rela[y2] == NULL) {
                 printf("Erreur d'allocation du tableau de relocation\n");

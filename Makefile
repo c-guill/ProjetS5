@@ -1,7 +1,8 @@
 CC=clang 
-CFLAGS=-g -Wall -Werror
+CFLAGS=-g -Wall
 
-all: getELFHeader getSectionHeaderTable getSymbolTable getSection getRelocationTable
+# "make all" pour generer les executables de chaque etape de la phase 1
+all: getELFHeader getSectionHeaderTable getSymbolTable getRelocationTable getSection
 
 
 getELFHeader: getELFHeader.o util.o getELF.o
@@ -28,6 +29,8 @@ getSection.o:  getELF.h util.h
 getSymbolTable.o:  getELF.h util.h
 getSectionHeaderTable.o: getELF.h util.h
 getELF.o:util.h
+
+
 
 clean:
 	rm -f *.o getELFHeader getRelocationTable getSection getSectionHeaderTable getSymbolTable
