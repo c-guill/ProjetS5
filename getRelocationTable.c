@@ -19,8 +19,8 @@ void afficherRelocationTable(FILE *file)
     Elf32_Word r_info;
     Elf32_Addr r_offset;
     Elf32_Sword r_addend;
-    char *tabCSym;
-    char *tabC;
+    unsigned char *tabCSym;
+    unsigned char *tabC;
 
 
 // recuperer infos sur le header

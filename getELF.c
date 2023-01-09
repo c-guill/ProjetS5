@@ -82,14 +82,14 @@ Elf32_Shdr *lireSecHeaTable(FILE *f, Elf32_Ehdr ehdr) {
     return shdr;
 }
 
-char *lireSection(FILE *f, Elf32_Shdr shdr) {
-	char *c;
+unsigned char *lireSection(FILE *f, Elf32_Shdr shdr) {
+	unsigned char *c;
 	int i;
 	if (shdr.sh_size == 0)
 		return NULL;
-    c = (char *)malloc(sizeof(char) * shdr.sh_size);
+    c = (unsigned char *)malloc(sizeof(unsigned char) * shdr.sh_size);
     if (c == NULL) {
-        printf("Erreur d'allocation du tableau de char\n");
+        printf("Erreur d'allocation du tableau de unsigned char\n");
         exit(1);
     }
     for (i = 0; i < shdr.sh_size; i++) {
@@ -227,13 +227,13 @@ ELF_FILE lireFichierELF(FILE *f)
 
 // allocations memoire pour les tables de tables
 
-	felf.scodetab = (char **)malloc(sizeof(char *) * felf.ehdr.e_shnum);
+	felf.scodetab = (unsigned char **)malloc(sizeof(unsigned char *) * felf.ehdr.e_shnum);
 	if (!felf.scodetab)
 	{
 		printf("Erreur d'allocation de la table des contenus des sections de code\n");
 		exit(1);
 	}
-	memset(felf.scodetab, 0, sizeof(char *) * felf.ehdr.e_shnum);
+	memset(felf.scodetab, 0, sizeof(unsigned char *) * felf.ehdr.e_shnum);
 
 	felf.reltabtab = (Elf32_Rel **)malloc(sizeof(Elf32_Rel *) * felf.ehdr.e_shnum);
 	if (!felf.reltabtab)

@@ -33,7 +33,8 @@ int stringtoInt(char *str)
 int trouverNumSection(FILE *f,Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, char *chaine)
 {
 	int i;
-	char *tabC, nomSection[1024];
+    unsigned char *tabC;
+    char nomSection[1024];
 
 // parcourir les section headers en verfiant si le nom correspond
 	int c;
@@ -69,7 +70,7 @@ int trouverNumSection(FILE *f,Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, char *chain
 //
 void afficherSectionNum(FILE *f, Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, int section_num)
 {
-	char *c_shstrtab, *c_sparam;
+    unsigned char *c_shstrtab, *c_sparam;
 	unsigned char byte_line[16];
 	unsigned char c;
 	int i, j;

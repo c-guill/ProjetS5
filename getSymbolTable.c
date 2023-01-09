@@ -16,8 +16,8 @@ void afficherSymbolTable(FILE *file)
     Elf32_Sym sym;
     Elf32_Sym *symtab;
     Elf32_Shdr *shdrtab;
-    char *tabC;
-    char *tabCSym;
+    unsigned char *tabC;
+    unsigned char *tabCSym;
     int quantite;
 
 

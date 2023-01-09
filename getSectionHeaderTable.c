@@ -20,7 +20,7 @@ void afficherSectionHeaderTable(FILE *file)
     Elf32_Ehdr ehdr;
     Elf32_Shdr shdr;
     Elf32_Shdr *shdrtab;
-    char *tabC;
+    unsigned char *tabC;
     char c;
     int n;
     ehdr=lireHeaderElf(file);
