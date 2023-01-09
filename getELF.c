@@ -221,7 +221,7 @@ ELF_FILE lireFichierELF(FILE *f)
 {
 	ELF_FILE felf;
 	Elf32_Shdr shdr;
-	int i, iscodetab, ireltabtab, irelatabtab;
+	int i;
 
 	felf.ehdr = lireHeaderElf(f);
 
@@ -256,10 +256,6 @@ ELF_FILE lireFichierELF(FILE *f)
 	fseek(f, felf.ehdr.e_shoff, SEEK_SET);
 	felf.shdrtab = lireSecHeaTable(f, felf.ehdr);
 
-	iscodetab = 0;
-	ireltabtab = 0;
-	irelatabtab = 0;
-
 	for (i = 0; i < felf.ehdr.e_shnum; i++)
 	{
 		shdr = felf.shdrtab[i];
@@ -279,18 +275,15 @@ ELF_FILE lireFichierELF(FILE *f)
 				break;
 			
 			case SHT_PROGBITS:
-				felf.scodetab[iscodetab] = lireSection(f, shdr);
-				iscodetab++;
+				felf.scodetab[i] = lireSection(f, shdr);
 				break;
 			
 			case SHT_REL:
-				felf.reltabtab[ireltabtab] = lireRelocationTable(f, shdr);
-				ireltabtab++;
+				felf.reltabtab[i] = lireRelocationTable(f, shdr);
 				break;
 			
 			case SHT_RELA:
-				felf.relatabtab[irelatabtab] = lireRelocationATable(f, shdr);
-				irelatabtab++;
+				felf.relatabtab[i] = lireRelocationATable(f, shdr);
 				break;
 
 			case SHT_ARM_ATTRIBUTES:
