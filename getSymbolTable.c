@@ -182,7 +182,7 @@ void afficherSymbolTable(FILE *file)
 	// se deplacer vers l'indice du string table correspondant au nom du symbole et afficher le nom
         n = 0;
         c = tabCSym[sym.st_name];
-        while (c && n < 17)
+        while (c)
         {
             printf("%c", c);
             n++;
