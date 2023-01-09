@@ -10,11 +10,12 @@
 //
 // TODO: memoriser les changements de numero des sections du second fichier
 //
-void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR)
+void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, ELF_FUSION *fusion)
 {
     int i, j, k;
 
     felfR->scodetab = (unsigned char **)malloc(sizeof(unsigned char *) * felf1->ehdr.e_shnum);
+    fusion->off_concat = (int *)malloc(sizeof(int) * felf2->ehdr.e_shnum);
 
 // afficher sections de code du premier fichier
 
@@ -56,6 +57,7 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
                     //c = felf1->scodetab[i][j];
                     //printf("%02x ", c);
                 }
+                fusion->off_concat[j] = felf1->shdrtab[i].sh_size;
 /*
                 printf("felfR->scodetab[i] apres concat : ");
                 for (k = 0; k < felf1->shdrtab[i].sh_size + felf2->shdrtab[j].sh_size; k++)
@@ -85,6 +87,7 @@ int main(int argc, char **argv)
 {
 	FILE *f1, *f2;
 	ELF_FILE felf1, felf2, felfR;
+    ELF_FUSION fusion;
 
 	if (argc != 3)
 	{
@@ -104,7 +107,7 @@ int main(int argc, char **argv)
 	felf1 = lireFichierELF(f1);
 	felf2 = lireFichierELF(f2);
 
-    afficherFusionSectionsCode(&felf1, &felf2, &felfR);
+    afficherFusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
 
 	fclose(f1);
 	fclose(f2);

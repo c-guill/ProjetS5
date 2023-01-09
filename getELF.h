@@ -15,6 +15,10 @@ typedef struct {
     unsigned char *arm_attrib;           // contenu de la section .ARM.attributes
 } ELF_FILE;
 
+typedef struct {
+    int *off_concat;            // table des offsets de concatenation des sections de code
+} ELF_FUSION;
+
 
 Elf32_Ehdr lireHeaderElf(FILE* f);
 Elf32_Shdr lireSectionHeader(FILE* f);
