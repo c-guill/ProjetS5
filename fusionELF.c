@@ -23,23 +23,18 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
     {
         if (felf1->shdrtab[i].sh_type != SHT_PROGBITS)
             continue;
+    
+    // copier section header
+
+        memcpy(&felfR->shdrtab[i], &felf1->shdrtab[i], sizeof(Elf32_Shdr));
 
     // fusionner sections de code
-        //free(felfR->scodetab[i]);
+    
         felfR->scodetab[i] = (unsigned char *)malloc(sizeof(unsigned char) * felf1->shdrtab[i].sh_size);
         for (j = 0; j < felf1->shdrtab[i].sh_size; j++)
         {
             felfR->scodetab[i][j] = felf1->scodetab[i][j];
-            //c = felf1->scodetab[i][j];
-            //printf("%02x ", c);
-        }/*
-        printf("section %d\nfelf1->shdrtab[i] avant concat : ", i);
-        for (j = 0; j < felf1->shdrtab[i].sh_size; j++)
-        {
-            printf("%02x ", felfR->scodetab[i][j]);
         }
-        printf("\n");*/
-        //fwrite(felf1->scodetab[i], felf1->shdrtab[i].sh_size, 1, stdin);
 
     // si section correspondante dans le second fichier, concatener son contenu
 
@@ -54,29 +49,14 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
                 for (k = 0; k < felf2->shdrtab[j].sh_size; k++)
                 {
                     felfR->scodetab[i][felf1->shdrtab[i].sh_size + k] = felf2->scodetab[j][k];
-                    //c = felf1->scodetab[i][j];
-                    //printf("%02x ", c);
                 }
 
             // modifier infos section header et memoriser offset concatenation
 
                 felfR->shdrtab[i].sh_size += felf2->shdrtab[j].sh_size;
                 fusion->off_concat[j] = felf1->shdrtab[i].sh_size;
-/*
-                printf("felfR->scodetab[i] apres concat : ");
-                for (k = 0; k < felf1->shdrtab[i].sh_size + felf2->shdrtab[j].sh_size; k++)
-                {
-                    printf("%02x ", felfR->scodetab[i][k]);
-                }
-                printf("\n");
+
                 break;
-                //printf("+ ");
-                //for (k = 0; k < felf2->shdrtab[j].sh_size; k++)
-                //{
-                //    c = felf2->scodetab[j][k];
-                //    printf("%02x ", c);
-                //}
-*/
             }
         }
     }
@@ -103,6 +83,8 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
 
         if (i == felf1->ehdr.e_shnum)
         {
+            memcpy(&felfR->shdrtab[felf1->ehdr.e_shnum + j], &felf2->shdrtab[j], sizeof(Elf32_Shdr));
+
             felfR->scodetab[felf1->ehdr.e_shnum + j] = (unsigned char *)malloc(sizeof(unsigned char) * felf2->shdrtab[j].sh_size);
             for (k = 0; k < felf2->shdrtab[j].sh_size; k++)
             {
@@ -111,7 +93,6 @@ void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felf
         }
     }
 
-//	printf("\n");
 	return;
 }
 
@@ -122,6 +103,7 @@ int main(int argc, char **argv)
 	FILE *f1, *f2;
 	ELF_FILE felf1, felf2, felfR;
     ELF_FUSION fusion;
+    int j, k;
 
 	if (argc != 3)
 	{
@@ -141,11 +123,24 @@ int main(int argc, char **argv)
 	felf1 = lireFichierELF(f1);
 	felf2 = lireFichierELF(f2);
 
+    felfR.ehdr.e_shnum = felf1.ehdr.e_shnum + felf2.ehdr.e_shnum;
+    felfR.shdrtab = (Elf32_Shdr *)malloc(sizeof(Elf32_Shdr) * felfR.ehdr.e_shnum);
+
     afficherFusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
-/*
-    int i;
-    for (i = 0; )
-*/
+
+    for (j = 0; j < felfR.ehdr.e_shnum; j++)
+    {
+        if (felfR.scodetab[j])
+        {
+            printf("contenu section de code de numero %d :\n", j);
+            for (k = 0; k < felfR.shdrtab[j].sh_size; k++)
+            {
+                printf("%02x ", felfR.scodetab[j][k]);
+            }
+            printf("\n");
+        }
+    }
+
 	fclose(f1);
 	fclose(f2);
 
