@@ -27,3 +27,7 @@ make all
 **Etape 5 :**
 
 ./getRelocationTable <fichier.o>
+
+**Etape 6 & 7:**
+
+./fusionELF <fichier1.o> <ficher2.o>
