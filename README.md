@@ -21,7 +21,7 @@ make all
 
 **Etape 4 :**
 
-./getSymbolTable <numero ou nom de section> <fichier.o>
+./getSymbolTable <numero_ou_nom_de_section> <fichier.o>
 
 
 **Etape 5 :**
