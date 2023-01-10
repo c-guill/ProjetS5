@@ -6,11 +6,9 @@
 
 
 //
-// Afficher dans la console la fusion des sections de code
+// Fusionner le contenu des sections de code des deux fichiers
 //
-// TODO: memoriser les changements de numero des sections du second fichier
-//
-void afficherFusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, ELF_FUSION *fusion)
+void FusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, ELF_FUSION *fusion)
 {
     int i, j, k;
 
@@ -126,7 +124,7 @@ int main(int argc, char **argv)
     felfR.ehdr.e_shnum = felf1.ehdr.e_shnum + felf2.ehdr.e_shnum;
     felfR.shdrtab = (Elf32_Shdr *)malloc(sizeof(Elf32_Shdr) * felfR.ehdr.e_shnum);
 
-    afficherFusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
+    FusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
 
     for (j = 0; j < felfR.ehdr.e_shnum; j++)
     {
