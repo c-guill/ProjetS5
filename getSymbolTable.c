@@ -20,9 +20,7 @@ void afficherSymbolTable(FILE *file)
     unsigned char *tabCSym;
     int quantite;
 
-
     ehdr=lireHeaderElf(file);
-
 
     // parcourir les section headers a la recherche de la table des symboles
 
@@ -31,10 +29,12 @@ void afficherSymbolTable(FILE *file)
 		printf("Le fichier ne possede aucune en-tete de section\n");
 		return;
 	}
+
     fseek(file,ehdr.e_shoff-ehdr.e_ehsize,SEEK_CUR);
     shdrtab=lireSecHeaTable(file,ehdr);
     n=0;
-    while (shdr.sh_type != SHT_SYMTAB){
+    while (shdr.sh_type != SHT_SYMTAB)
+    {
         shdr = shdrtab[n];
         n++;
     }
@@ -46,8 +46,7 @@ void afficherSymbolTable(FILE *file)
     fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
     tabC=lireSection(file,shdrtab[ehdr.e_shstrndx]);
 
-
-// afficher le nom de la section table des symboles
+    // afficher le nom de la section table des symboles
 
 	printf("\nLa table de symboles « ");
     n=0;
@@ -63,7 +62,7 @@ void afficherSymbolTable(FILE *file)
 
 	printf(" » contient %d entrées :\n", quantite);
 
-// se deplacer vers le debut de la table des symboles et la lire
+    // se deplacer vers le debut de la table des symboles et la lire
 
 	printf("   Num: Valeur Tail Type Lien Vis Ndx Nom\n");
 
@@ -179,7 +178,8 @@ void afficherSymbolTable(FILE *file)
 				break;
 		}
 
-	// se deplacer vers l'indice du string table correspondant au nom du symbole et afficher le nom
+	    // se deplacer vers l'indice du string table correspondant au nom du symbole et afficher le nom
+
         n = 0;
         c = tabCSym[sym.st_name];
         while (c)
@@ -190,25 +190,26 @@ void afficherSymbolTable(FILE *file)
         }
 
 		printf("\n");
-
 	}
     
 }
 
 //------------------------------------------------------------------------------
 
-int main(int argc, char **argv) {
-    if (argc != 2) {
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
         printf("usage: %s <fichier>\n", argv[0]);
         return 1;
     }
 
     FILE *f = fopen(argv[1],"r");
-    if (f == NULL) {
+    if (f == NULL)
+    {
         printf("ERREUR: le fichier n'a pas pu être ouvert\n");
         return 1;
     }
-
 
     afficherSymbolTable(f);
     fclose(f);

@@ -36,7 +36,8 @@ int trouverNumSection(FILE *f,Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, char *chain
     unsigned char *tabC;
     char nomSection[1024];
 
-// parcourir les section headers en verfiant si le nom correspond
+    // parcourir les section headers en verfiant si le nom correspond
+
 	int c;
 	fseek(f,shdrtab[ehdr->e_shstrndx].sh_offset,SEEK_SET);
 	tabC=lireSection(f,shdrtab[ehdr->e_shstrndx]);
@@ -50,10 +51,10 @@ int trouverNumSection(FILE *f,Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, char *chain
 			c++;
 		}
 		nomSection[c]='\0';
-		//printf("%s\n", nomSection);
-	// stocker le string correspondant au nom de la section
+
+	    // stocker le string correspondant au nom de la section
 	
-	// comparer avec le string donne et renvoyer le numero de section si match
+	    // comparer avec le string donne et renvoyer le numero de section si match
 
 		if (!strcmp(nomSection, chaine))
 		{
@@ -97,7 +98,6 @@ void afficherSectionNum(FILE *f, Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, int sect
 			printf("%c", c_shstrtab[shdr_sparam.sh_name+i]);
 			i++;
 		}
-		
 
 		printf(" » n'a pas de données à vidanger.\n");
 		exit(0);
@@ -117,7 +117,7 @@ void afficherSectionNum(FILE *f, Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, int sect
 	fseek(f, shdr_sparam.sh_offset, SEEK_SET);
 	c_sparam = lireSection(f, shdr_sparam);
 
-// afficher une note si cette section a des readressages
+    // afficher une note si cette section a des readressages
 
 	for (i = 0; i < ehdr->e_shnum; i++)
 	{
@@ -128,7 +128,7 @@ void afficherSectionNum(FILE *f, Elf32_Ehdr *ehdr, Elf32_Shdr *shdrtab, int sect
 		}
 	}
 
-// vidanger la section en hexadecimal
+    // vidanger la section en hexadecimal
 
 	printf("  0x00000000 ");
 
@@ -191,7 +191,8 @@ int main(int argc, char **argv)
 
 	f=fopen(argv[2],"r");
 
-	if(f==NULL){
+	if (f==NULL)
+    {
 		printf("Erreur d'ouverture\n");
 		exit(1);
 	}

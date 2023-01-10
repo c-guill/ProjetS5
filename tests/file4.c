@@ -1,5 +1,3 @@
-// Найти среднее геометрическое положительных элементов
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
