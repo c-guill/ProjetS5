@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,16 +15,16 @@ void createString(ELF_FILE *felf, Elf32_Word name, char *result){
     result[n]='\0';
 }
 
-void setDonnee(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, int bool){
+void setDonnee(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, int s, int bool){
     Elf32_Shdr shdr1;
     Elf32_Shdr shdr2;
     Elf32_Sym sym1;
     Elf32_Sym sym2;
-    int n = 0, j = 0, b = 1, q1, q2;
+    int n, j = 0, b, q1, q2, r = 0;
     char c;
     while (shdr1.sh_type != SHT_SYMTAB){
-        shdr1 = felf1->shdrtab[n];
-        n++;
+        shdr1 = felf1->shdrtab[r];
+        r++;
     }
     n=0;
     while (shdr2.sh_type != SHT_SYMTAB){
@@ -34,6 +33,9 @@ void setDonnee(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, int bool){
     }
     q1 = shdr1.sh_size/16;
     q2 = shdr2.sh_size/16;
+    if(!bool){
+        q1=q2;
+    }
     for (int i = 0; i < q1; ++i) {
         sym1 = felf1->symtab[i];
         n = 0;
@@ -46,9 +48,9 @@ void setDonnee(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, int bool){
         char *result1 = malloc(sizeof(char) * (n+1));
         createString(felf1,sym1.st_name,result1);
         if(ELF32_ST_BIND(sym1.st_info) == STB_LOCAL){
-            memcpy(&felfR->symtab[i],&felf1->symtab[i],sizeof(Elf32_Sym));
+            memcpy(&felfR->symtab[felfR->shdrtab[s].sh_size/16],&felf1->symtab[i],sizeof(Elf32_Sym));
+            felfR->shdrtab[s].sh_size+= sizeof(Elf32_Sym);
         } else if (ELF32_ST_BIND(sym1.st_info) == STB_GLOBAL){
-            n=0;
             b=1;
             while (j < q2){
                 sym2 = felf2->symtab[j];
@@ -69,16 +71,20 @@ void setDonnee(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, int bool){
                             exit(1);
                         }
                         if (sym1.st_shndx != SHN_UNDEF && sym2.st_shndx == SHN_UNDEF ){
-                            memcpy(&felfR->symtab[i],&felf1->symtab[i],sizeof(Elf32_Sym));
+                            memcpy(&felfR->symtab[felfR->shdrtab[s].sh_size/16],&felf1->symtab[i],sizeof(Elf32_Sym));
+                            felfR->shdrtab[s].sh_size+= sizeof(Elf32_Sym);
                         }else if(bool && sym1.st_shndx == SHN_UNDEF && sym2.st_shndx == SHN_UNDEF ){
-                            memcpy(&felfR->symtab[i],&felf1->symtab[i],sizeof(Elf32_Sym));
+                            memcpy(&felfR->symtab[felfR->shdrtab[s].sh_size/16],&felf1->symtab[i],sizeof(Elf32_Sym));
+                            felfR->shdrtab[s].sh_size+= sizeof(Elf32_Sym);
                         }
                     }
                 }
                 j++;
             }
+            j=0;
             if(b){
-                memcpy(&felfR->symtab[i],&felf1->symtab[i],sizeof(Elf32_Sym));
+                memcpy(&felfR->symtab[felfR->shdrtab[s].sh_size/16],&felf1->symtab[i],sizeof(Elf32_Sym));
+                felfR->shdrtab[s].sh_size+= sizeof(Elf32_Sym);
             }
         }
     }
@@ -175,10 +181,125 @@ void FusionSectionsCode(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR, ELF_F
 }
 
 void Fusionrenumerotationsymboles(ELF_FILE *felf1, ELF_FILE *felf2, ELF_FILE *felfR){
+    int n = 0;
+    while (felf1->shdrtab[n].sh_type != SHT_SYMTAB){
+        n++;
+    }
+    memcpy(&felfR->shdrtab[n],&felf1->shdrtab[n], sizeof(Elf32_Shdr));
+    felfR->shdrtab[n].sh_size=0;
 
-    setDonnee(felf1, felf2, felfR, 1);
-    setDonnee(felf2, felf1, felfR, 0);
+    setDonnee(felf1, felf2, felfR, n, 1);
+    setDonnee(felf2, felf1, felfR, n, 0);
 
+}
+
+void afficherELF(ELF_FILE felfR){
+    int k, j, i=0;
+    for (j = 0; j < felfR.ehdr.e_shnum; j++)
+    {
+        if (felfR.scodetab[j])
+        {
+            printf("contenu section de code de numero %d :\n", j);
+            for (k = 0; k < felfR.shdrtab[j].sh_size; k++)
+            {
+                printf("%02x ", felfR.scodetab[j][k]);
+            }
+            printf("\n");
+        }
+    }
+    while (felfR.shdrtab[i].sh_type != SHT_SYMTAB){
+        i++;
+    }
+    printf("Table de symbole : \n");
+    for (j = 0; j < felfR.shdrtab[i].sh_size/felfR.shdrtab[i].sh_entsize; j++)
+    {
+        printf("%d: %08x %d ",j, felfR.symtab[j].st_value, felfR.symtab[j].st_size);
+        switch (ELF32_ST_TYPE(felfR.symtab[j].st_info))
+        {
+            case STT_NOTYPE:
+                printf("NOTYPE ");
+                break;
+            case STT_OBJECT:
+                printf("OBJECT ");
+                break;
+            case STT_FUNC:
+                printf("FUNC ");
+                break;
+            case STT_SECTION:
+                printf("SECTION ");
+                break;
+            case STT_FILE:
+                printf("FILE ");
+                break;
+            case STT_COMMON:
+                printf("COMMON ");
+                break;
+            case STT_TLS:
+                printf("TLS ");
+                break;
+            case STT_NUM:
+                printf("NUM ");
+                break;
+            case STT_LOOS:
+                printf("LOOS ");
+                break;
+            case STT_HIOS:
+                printf("HIOS ");
+                break;
+            case STT_LOPROC:
+                printf("LOPROC ");
+                break;
+            case STT_HIPROC:
+                printf("HIPROC ");
+                break;
+            default:
+                printf("ERREUR: type de symbole inconnu ");
+                break;
+        }
+        switch (ELF32_ST_BIND(felfR.symtab[j].st_info))
+        {
+            case STB_LOCAL:
+                printf("LOCAL ");
+                break;
+            case STB_GLOBAL:
+                printf("GLOBAL ");
+                break;
+            default:
+                printf("ERREUR: bind du symbole inconnu ");
+                break;
+        }
+        switch (ELF32_ST_VISIBILITY(felfR.symtab[j].st_other))
+        {
+            case STV_DEFAULT:
+                printf("DEFAULT ");
+                break;
+            case STV_INTERNAL:
+                printf("INTERNAL ");
+                break;
+            case STV_HIDDEN:
+                printf("HIDDEN ");
+                break;
+            case STV_PROTECTED:
+                printf("PROTECTED ");
+                break;
+            default:
+                printf("ERREUR: visibilite du symbole inconnu ");
+                break;
+        }
+        switch (felfR.symtab[j].st_shndx)
+        {
+            case SHN_UNDEF:
+                printf("UND ");
+                break;
+            case SHN_ABS:
+                printf("ABS ");
+                break;
+            default:
+                printf("%d ", felfR.symtab[j].st_shndx);
+                break;
+        }
+        printf(" %d\n",felfR.symtab[j].st_name);
+    }
 }
 
 
@@ -190,7 +311,7 @@ int main(int argc, char **argv)
 	FILE *f1, *f2;
 	ELF_FILE felf1, felf2, felfR;
     ELF_FUSION fusion;
-    int j, k;
+    int j = 0, k = 0;
 
 	if (argc != 3)
 	{
@@ -213,24 +334,24 @@ int main(int argc, char **argv)
     felfR.ehdr.e_shnum = felf1.ehdr.e_shnum + felf2.ehdr.e_shnum;
     felfR.shdrtab = (Elf32_Shdr *)malloc(sizeof(Elf32_Shdr) * felfR.ehdr.e_shnum);
 
-    FusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
-
-    for (j = 0; j < felfR.ehdr.e_shnum; j++)
-    {
-        if (felfR.scodetab[j])
-        {
-            printf("contenu section de code de numero %d :\n", j);
-            for (k = 0; k < felfR.shdrtab[j].sh_size; k++)
-            {
-                printf("%02x ", felfR.scodetab[j][k]);
-            }
-            printf("\n");
-        }
+    while (felf1.shdrtab[j].sh_type != SHT_SYMTAB){
+        j++;
     }
+    while (felf2.shdrtab[k].sh_type != SHT_SYMTAB){
+        k++;
+    }
+    felfR.symtab = malloc(sizeof(Elf32_Sym) * (felf1.shdrtab[j].sh_size/felf1.shdrtab[j].sh_entsize+felf2.shdrtab[k].sh_size/felf2.shdrtab[k].sh_entsize));
+
+    FusionSectionsCode(&felf1, &felf2, &felfR, &fusion);
     Fusionrenumerotationsymboles(&felf1, &felf2, &felfR);
+
 
     fclose(f1);
 	fclose(f2);
+
+    afficherELF(felfR);
+
+
 
 	return 0;
 }
