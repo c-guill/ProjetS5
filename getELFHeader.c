@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "getELF.h"
-#include "util.h"
 
 
 //

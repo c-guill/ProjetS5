@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "getELF.h"
@@ -115,7 +114,6 @@ Elf32_Sym lireSymbol(FILE* f) {
         sym.st_size = reverse_4(sym.st_size);
         sym.st_shndx = reverse_2(sym.st_shndx);
     }
-
     return sym;
 }
 
