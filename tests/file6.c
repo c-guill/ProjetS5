@@ -1,67 +1,27 @@
-#include <stdio.h>    // pour printf, scanf, etc
-#include <stdlib.h>   // pour malloc
-#include <string.h>   // pour strcpy
-
-//----------------------------------------
-typedef struct
+#include <stdio.h>
+#include <stdlib.h>
+#define TAILLE_BUF 4 /* valeur quelconque (en gÃ©nÃ©ral, beaucoup plus grande) */
+void main (void)
 {
-    char nom[100];
-    char prenom[50];
-    double taille;
-} personne;
-
-//----------------------------------------
-void affiche_personne (personne *pers)
-{
-    // verifie que le pointeur n'est pas nul
-    if (pers != NULL) {
-        // pers est un pointeur, donc il faut utiliser la fleche -> 
-        printf("%s %s : %.2f m\n", pers->nom, pers->prenom, pers->taille);
-    }
-    else {
-        printf ("pointeur nul !\n");
-    }
-}
-
-//----------------------------------------
-int main()
-{
-    FILE *fichier;
-    char nomfichier[500];
-    personne pers;
-    int nb;
-    
-    printf("nom du fichier ? ");
-    fgets(nomfichier, 500, stdin);
-    nomfichier[strlen(nomfichier)-1] = '\0';
-    
-    fichier = fopen(nomfichier, "rb");   // fichier binaire (b) ouvert en lecture (r=read)
-    
-    if (fichier != NULL) 
+    FILE* fic ;
+    short int buffer[TAILLE_BUF]; /* ce tableau mÃ©morisera les valeurs lues dans le fichier */
+    short int i, nb_val_lues = TAILLE_BUF ;
+    /* Ouverture du fichier (en lecture binaire) : */
+    fic = fopen( "exemple.dat", "rb") ;
+    if ( fic==NULL )
     {
-        // tant que on arrive Ã  lire les infos d'une personne
-        // et en meme temps a les stocker a l'adresse de la variable pers
-        nb = 0;
-        while ( (fread(&pers, sizeof(personne), 1, fichier)) == 1)
-        {
-            affiche_personne (&pers);
-            nb ++;
-        }
-        fclose (fichier); // NE JAMAIS OUBLIER DE FERMER LES FICHIERS OUVERTS
-        
-        printf ("Il y a %d personnes dans le fichier %s\n", nb, nomfichier);
+        printf("Ouverture du fichier impossible !");
+        exit(0);
     }
-    else 
+    /* Lecture dans le fichier : */
+    printf("\n Liste des valeurs lues : \n");
+    /*Remplissage du buffer et traitement, autant de fois que nÃ©cessaire jusqu'Ã  la fin fichier : */
+    while ( nb_val_lues == TAILLE_BUF ) /* vrai tant que fin du fichier non atteinte */
     {
-        printf("Erreur : le fichier %s ne peut etre ouvert.\n", nomfichier);
+        nb_val_lues = fread( buffer, sizeof(short int), TAILLE_BUF, fic);
+        /* Traitement des valeurs stockÃ©es dans le buffer (ici, un simple affichage) : */
+        for (i=0; i<nb_val_lues; i++) printf( "%hd", buffer[i] );
     }
-    
-    return 0;
+    /* Fermeture du fichier : */
+    fclose( fic ) ;
 }
-
-
-
-
-
-
-

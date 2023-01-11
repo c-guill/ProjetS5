@@ -9,8 +9,6 @@
 #define FLAG_S (1 << 5)
 #define FLAG_I (1 << 6)
 #define FLAG_ARM_NOREAD (1 << 29)
-// d'autres flags apparaissent dans readelf pour file1.o mais non documentes
-// va surement falloir les ajouter a la main
 
 //
 // Afficher la table des en-tetes de sections du fichier dans la console
@@ -29,7 +27,6 @@ void afficherSectionHeaderTable(FILE *file)
     fseek(file,shdrtab[ehdr.e_shstrndx].sh_offset,SEEK_SET);
     tabC=lireSection(file,shdrtab[ehdr.e_shstrndx]);
 
-
     if (ehdr.e_shnum == 0)
 	{
 		printf("Le fichier ne possede aucune en-tete de section\n");
@@ -43,7 +40,8 @@ void afficherSectionHeaderTable(FILE *file)
 	{
         printf("  [%d] ", i);
         shdr=shdrtab[i];
-	// afficher le nom de la section (readelf n'affiche que les 17 premiers caracteres)
+
+	    // afficher le nom de la section (readelf n'affiche que les 17 premiers caracteres)
 
 		n = 0;
 		c = tabC[shdr.sh_name];
@@ -147,14 +145,17 @@ void afficherSectionHeaderTable(FILE *file)
 
 //------------------------------------------------------------------------------
 
-int main(int argc, char **argv) {
-    if (argc != 2) {
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
         printf("usage: %s <fichier>\n", argv[0]);
         return 1;
     }
 
     FILE *f = fopen(argv[1],"r");
-    if (f == NULL) {
+    if (f == NULL)
+    {
         printf("ERREUR: le fichier n'a pas pu être ouvert\n");
         return 1;
     }

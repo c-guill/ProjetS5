@@ -1,29 +1,35 @@
 # ProjetS5 Groupe 8
 
-**compiler tous les fichiers :**
+**Compilation du code source :**
 
 make all
 
-**Etape 1 :**
+
+**Exécution programme étape 1 :**
 
 ./getELFHeader <fichier.o>
 
 
-**Etape 2 :**
+**Exécution programme étape 2 :**
 
 ./getSectionHeaderTable <fichier.o>
 
 
-**Etape 3 :**
+**Exécution programme étape 3 :**
 
-./getSection <fichier.o>
-
-
-**Etape 4 :**
-
-./getSymbolTable <numero ou nom de section> <fichier.o>
+./getSection <numero_ou_nom_de_section> <fichier.o>
 
 
-**Etape 5 :**
+**Exécution programme étape 4 :**
+
+./getSymbolTable <fichier.o>
+
+
+**Exécution programme étape 5 :**
 
 ./getRelocationTable <fichier.o>
+
+
+**Exécution programme étapes 6 et 7 :**
+
+./fusionELF <fichier1.o> <ficher2.o>
